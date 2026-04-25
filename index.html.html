@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Skin Condition Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f3ef;
+      --surface: #ffffff;
+      --surface2: #f0ede8;
+      --border: rgba(0,0,0,0.1);
+      --border-strong: rgba(0,0,0,0.18);
+      --text: #1a1917;
+      --text-muted: #6b6860;
+      --text-faint: #9c9a95;
+      --accent: #2c5f4a;
+      --accent-light: #e4f0eb;
+      --warn: #7a4f10;
+      --warn-light: #fef3e2;
+      --danger: #8b2020;
+      --danger-light: #fdeaea;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 2rem 2rem 0;
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2.5rem;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg { width: 20px; height: 20px; }
+
+    .logo-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
+
+    .hero { margin-bottom: 2rem; }
+
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 5vw, 42px);
+      color: var(--text);
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.65;
+      max-width: 520px;
+    }
+
+    main {
+      flex: 1;
+      padding: 0 2rem 4rem;
+      max-width: 720px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .disclaimer {
+      background: var(--warn-light);
+      border: 1px solid rgba(122,79,16,0.2);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--warn);
+      line-height: 1.55;
+      margin-bottom: 1.75rem;
+    }
+
+    .disclaimer strong { font-weight: 500; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 0.75rem;
+    }
+
+    .upload-zone {
+      border: 1.5px dashed var(--border-strong);
+      border-radius: var(--radius);
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: var(--surface);
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .upload-zone:hover, .upload-zone.drag {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .upload-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--surface2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+
+    .upload-icon svg { width: 24px; height: 24px; opacity: 0.5; }
+
+    .upload-zone h3 {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .upload-zone p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .upload-zone span {
+      font-size: 12px;
+      color: var(--text-faint);
+      margin-top: 6px;
+      display: block;
+    }
+
+    input[type="file"] { display: none; }
+
+    .preview-wrap { position: relative; margin-bottom: 1rem; }
+
+    .preview-img {
+      width: 100%;
+      max-height: 320px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      display: block;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+
+    .api-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .api-row label {
+      font-size: 13px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    input[type="password"] {
+      flex: 1;
+      padding: 9px 12px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface2);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="password"]:focus { border-color: var(--accent); }
+
+    textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 12px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      background: var(--surface2);
+      color: var(--text);
+      resize: vertical;
+      outline: none;
+      line-height: 1.55;
+      transition: border-color 0.15s;
+    }
+
+    textarea:focus { border-color: var(--accent); }
+
+    textarea::placeholder { color: var(--text-faint); }
+
+    .analyze-btn {
+      width: 100%;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      border-radius: var(--radius);
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      transition: opacity 0.15s, transform 0.1s;
+      margin-top: 0.5rem;
+    }
+
+    .analyze-btn:hover:not(:disabled) { opacity: 0.88; }
+    .analyze-btn:active:not(:disabled) { transform: scale(0.99); }
+    .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .result-section { margin-top: 1.5rem; animation: fadeUp 0.35s ease; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .result-header h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      color: var(--text);
+    }
+
+    .urgency-pill {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .urgency-routine { background: var(--accent-light); color: var(--accent); }
+    .urgency-soon { background: var(--warn-light); color: var(--warn); }
+    .urgency-urgent { background: var(--danger-light); color: var(--danger); }
+
+    .conditions-list { display: flex; flex-direction: column; gap: 1px; }
+
+    .condition-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .cond-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+
+    .cond-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .conf-badge {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .conf-high { background: var(--accent-light); color: var(--accent); }
+    .conf-med { background: var(--warn-light); color: var(--warn); }
+    .conf-low { background: var(--surface2); color: var(--text-muted); }
+
+    .progress-track {
+      height: 3px;
+      background: var(--surface2);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent);
+      transition: width 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .cond-desc {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .advice-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-top: 0.75rem;
+    }
+
+    .advice-card .label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 6px;
+    }
+
+    .advice-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    .loading-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 2rem;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1.3s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .error-msg {
+      background: var(--danger-light);
+      border: 1px solid rgba(139,32,32,0.2);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--danger);
+      margin-top: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-faint);
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 520px) {
+      header, main { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .hero h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M9 12c0-1.7 1.3-3 3-3s3 1.3 3 3-1.3 3-3 3"/>
+        <circle cx="12" cy="12" r="1.5" fill="#fff"/>
+      </svg>
+    </div>
+    <span class="logo-name">DermAI</span>
+  </div>
+
+  <div class="hero">
+    <h1>Skin condition<br><em>analysis</em></h1>
+    <p>Upload a photo of your skin concern and describe your symptoms. Our AI will suggest possible conditions and next steps.</p>
+  </div>
+</header>
+
+<main>
+  <div class="disclaimer">
+    <strong>Medical disclaimer:</strong> This tool is for informational purposes only and does not constitute medical advice or diagnosis. Always consult a qualified dermatologist or healthcare professional for accurate diagnosis and treatment.
+  </div>
+
+  <div class="card">
+    <div class="card-label">Your Anthropic API key</div>
+    <div class="api-row">
+      <label for="api-key">sk-ant-...</label>
+      <input type="password" id="api-key" placeholder="Paste your API key here" autocomplete="off">
+    </div>
+    <p style="font-size:12px; color:var(--text-faint); line-height:1.5;">Your key is used locally and never stored or transmitted anywhere except directly to Anthropic. Get one at <a href="https://console.anthropic.com" style="color:var(--accent);">console.anthropic.com</a>.</p>
+  </div>
+
+  <div id="upload-zone" class="upload-zone"
+    onclick="document.getElementById('file-input').click()"
+    ondragover="handleDrag(event,true)"
+    ondragleave="handleDrag(event,false)"
+    ondrop="handleDrop(event)">
+    <div class="upload-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <path d="M21 15l-5-5L5 21"/>
+      </svg>
+    </div>
+    <h3>Upload a photo</h3>
+    <p>Drag & drop or click to select</p>
+    <span>JPG, PNG, WEBP — best results with clear, well-lit photos</span>
+  </div>
+  <input type="file" id="file-input" accept="image/*" onchange="handleFile(event)">
+
+  <div id="preview-wrap" class="preview-wrap" style="display:none;">
+    <img id="preview-img" class="preview-img" alt="Uploaded skin photo">
+    <button class="remove-btn" onclick="removeImage()" title="Remove photo">&#215;</button>
+  </div>
+
+  <div class="card" style="margin-top:0;">
+    <div class="card-label">Describe your symptoms</div>
+    <textarea id="symptoms" placeholder="e.g. Itchy red patches on my left forearm for about 2 weeks. Worsens after hot showers. No known allergies. Tried moisturiser with no improvement..."></textarea>
+  </div>
+
+  <button class="analyze-btn" id="analyze-btn" onclick="analyze()">Analyze condition</button>
+
+  <div id="result-area"></div>
+</main>
+
+<footer>
+  DermAI &mdash; for educational and informational use only &mdash; not a substitute for professional medical advice
+</footer>
+
+<script>
+  let imageBase64 = null;
+  let imageMime = 'image/jpeg';
+
+  function handleDrag(e, over) {
+    e.preventDefault();
+    document.getElementById('upload-zone').classList.toggle('drag', over);
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    handleDrag(e, false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadImage(file);
+  }
+
+  function handleFile(e) {
+    const file = e.target.files[0];
+    if (file) loadImage(file);
+  }
+
+  function loadImage(file) {
+    imageMime = file.type || 'image/jpeg';
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imageBase64 = e.target.result.split(',')[1];
+      document.getElementById('preview-img').src = e.target.result;
+      document.getElementById('preview-wrap').style.display = 'block';
+      document.getElementById('upload-zone').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeImage() {
+    imageBase64 = null;
+    document.getElementById('preview-wrap').style.display = 'none';
+    document.getElementById('upload-zone').style.display = 'block';
+    document.getElementById('file-input').value = '';
+  }
+
+  function confClass(pct) {
+    if (pct >= 65) return 'conf-high';
+    if (pct >= 40) return 'conf-med';
+    return 'conf-low';
+  }
+
+  function confLabel(pct) {
+    if (pct >= 65) return 'Strong match';
+    if (pct >= 40) return 'Possible match';
+    return 'Weak match';
+  }
+
+  function urgencyClass(u) {
+    if (u === 'urgent') return 'urgency-urgent';
+    if (u === 'soon') return 'urgency-soon';
+    return 'urgency-routine';
+  }
+
+  function urgencyLabel(u) {
+    if (u === 'urgent') return 'Seek care urgently';
+    if (u === 'soon') return 'See a doctor soon';
+    return 'Routine follow-up';
+  }
+
+  async function analyze() {
+    const apiKey = document.getElementById('api-key').value.trim();
+    const symptoms = document.getElementById('symptoms').value.trim();
+    const resultArea = document.getElementById('result-area');
+
+    if (!apiKey) {
+      resultArea.innerHTML = '<div class="error-msg">Please enter your Anthropic API key above.</div>';
+      return;
+    }
+    if (!imageBase64 && !symptoms) {
+      resultArea.innerHTML = '<div class="error-msg">Please upload a photo or describe your symptoms (or both).</div>';
+      return;
+    }
+
+    const btn = document.getElementById('analyze-btn');
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+
+    resultArea.innerHTML = '<div class="loading-wrap"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+
+    const userContent = [];
+
+    if (imageBase64) {
+      userContent.push({
+        type: 'image',
+        source: { type: 'base64', media_type: imageMime, data: imageBase64 }
+      });
+    }
+
+    const promptText = `You are a knowledgeable dermatology AI assistant. Analyze the ${imageBase64 ? 'skin image and ' : ''}symptoms provided and respond ONLY with a JSON object — no preamble, no explanation, no markdown formatting.
+
+${symptoms ? 'Patient-reported symptoms: ' + symptoms : 'No symptoms described — analyze the image only.'}
+
+Return this exact JSON structure:
+{
+  "conditions": [
+    {
+      "name": "Condition name",
+      "confidence": 72,
+      "description": "1-2 sentence explanation of the condition and why it may match the presentation."
+    }
+  ],
+  "advice": "1-2 sentences of practical advice — e.g. when to see a doctor, lifestyle tips, what to avoid.",
+  "urgency": "routine|soon|urgent"
+}
+
+Rules:
+- List 2-4 conditions in descending order of confidence (integer 0-100)
+- Be medically accurate and specific
+- If the image is unrelated to skin conditions, return a single entry: { "name": "Unable to assess", "confidence": 0, "description": "The image does not appear to show a skin condition." }
+- Never make a definitive diagnosis — frame everything as possibilities
+- Return ONLY the raw JSON object`;
+
+    userContent.push({ type: 'text', text: promptText });
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: userContent }]
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || 'API error ' + response.status);
+      }
+
+      const data = await response.json();
+      const raw = data.content.map(b => b.text || '').join('');
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const result = JSON.parse(clean);
+
+      const conditionsHTML = result.conditions.map(c => `
+        <div class="condition-item">
+          <div class="cond-top">
+            <span class="cond-name">${c.name}</span>
+            <span class="conf-badge ${confClass(c.confidence)}">${confLabel(c.confidence)} &middot; ${c.confidence}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width: 0%" data-target="${c.confidence}%"></div>
+          </div>
+          <p class="cond-desc">${c.description}</p>
+        </div>
+      `).join('');
+
+      resultArea.innerHTML = `
+        <div class="result-section">
+          <div class="result-header">
+            <h2>Analysis results</h2>
+            <span class="urgency-pill ${urgencyClass(result.urgency)}">${urgencyLabel(result.urgency)}</span>
+          </div>
+          <div class="conditions-list">${conditionsHTML}</div>
+          <div class="advice-card">
+            <div class="label">Recommended next steps</div>
+            <p>${result.advice}</p>
+          </div>
+        </div>
+      `;
+
+      // Animate progress bars after render
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          document.querySelectorAll('.progress-fill[data-target]').forEach(el => {
+            el.style.width = el.dataset.target;
+          });
+        });
+      });
+
+    } catch (err) {
+      resultArea.innerHTML = `<div class="error-msg"><strong>Error:</strong> ${err.message}</div>`;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Analyze again';
+  }
+</script>
+</body>
+</html>
